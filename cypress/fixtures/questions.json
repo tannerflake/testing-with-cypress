@@ -1,0 +1,37 @@
+[
+    {
+      "question": "What is React?",
+      "answers": ["A JavaScript library", "A programming language", "A CSS framework", "A database"],
+      "correctAnswer": "A JavaScript library"
+    },
+    {
+      "question": "What is JSX?",
+      "answers": ["A syntax extension for JavaScript", "A new version of Java", "A type of JSON", "A CSS preprocessor"],
+      "correctAnswer": "A syntax extension for JavaScript"
+    },
+    {
+      "question": "Which hook is used to manage state in a function component?",
+      "answers": ["useEffect", "useContext", "useState", "useReducer"],
+      "correctAnswer": "useState"
+    },
+    {
+      "question": "What is the purpose of useEffect in React?",
+      "answers": [
+        "To handle side effects in a component",
+        "To manage component state",
+        "To create reusable components",
+        "To improve CSS performance"
+      ],
+      "correctAnswer": "To handle side effects in a component"
+    },
+    {
+      "question": "Which command is used to create a new React app?",
+      "answers": [
+        "npm start",
+        "npx create-react-app my-app",
+        "react-init my-app",
+        "npm install react"
+      ],
+      "correctAnswer": "npx create-react-app my-app"
+    }
+  ]
