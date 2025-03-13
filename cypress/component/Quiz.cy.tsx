@@ -7,7 +7,7 @@ import questions from "../fixtures/questions.json"; // Mock data
 
 describe("Quiz Component", () => {
   beforeEach(() => {
-    cy.intercept("GET", "/api/questions", { body: questions }).as("getQuestions");
+    cy.intercept("GET", "/api/questions/random", { body: questions }).as("getQuestions");
   });
 
   it("renders the Quiz component", () => {
@@ -27,7 +27,7 @@ describe("Quiz Component", () => {
     cy.contains("Start Quiz").click();
     cy.wait("@getQuestions");
 
-    cy.get("[data-testid=answer-option]").first().click(); // Click first answer
+    cy.get("[data-testid=answer-option]").first().click();
     cy.get("[data-testid=question-text]").should("not.contain", questions[0].question);
   });
 
@@ -39,7 +39,7 @@ describe("Quiz Component", () => {
     questions.forEach(() => {
       cy.get("[data-testid=answer-option]").first().click();
     });
-
+    cy.wait(1000); // Wait 1 second before checking
     cy.contains("Your Score:").should("exist");
   });
 });
