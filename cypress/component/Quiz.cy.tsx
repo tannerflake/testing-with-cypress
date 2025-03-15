@@ -1,45 +1,78 @@
 /// <reference types="cypress" />
 
-import React from "react";
-import { mount } from "cypress/react"; // Cypress helper to mount components
-import Quiz from "../../client/src/components/Quiz";
-import questions from "../fixtures/questions.json"; // Mock data
-
-describe("Quiz Component", () => {
+describe("Tech Quiz End-to-End Test", () => {
   beforeEach(() => {
-    cy.intercept("GET", "/api/questions/random", { body: questions }).as("getQuestions");
+    cy.visit("http://localhost:3001");
   });
 
-  it("renders the Quiz component", () => {
-    mount(<Quiz />);
-    cy.contains("Start Quiz").should("exist");
+  it("loads the quiz page", () => {
+    cy.contains("Start Quiz").should("be.visible");
   });
 
-  it("starts quiz and shows first question", () => {
-    mount(<Quiz />);
+  it("starts quiz and displays first question", () => {
     cy.contains("Start Quiz").click();
-    cy.wait("@getQuestions");
-    cy.get("[data-testid=question-text]").should("exist");
+    cy.get("[data-testid=question-text]").should("be.visible");
+    cy.get("[data-testid=answer-option]").should("be.visible");
   });
 
-  it("answers a question and moves to the next", () => {
-    mount(<Quiz />);
+  it("answers all questions and sees final score", () => {
     cy.contains("Start Quiz").click();
-    cy.wait("@getQuestions");
 
-    cy.get("[data-testid=answer-option]").first().click();
-    cy.get("[data-testid=question-text]").should("not.contain", questions[0].question);
+    let lastQuestion = "";
+
+    for (let i = 0; i < 10; i++) {
+      // Wait for the question to load and store the question text
+      cy.get("[data-testid=question-text]")
+        .should("be.visible")
+        .invoke("text")
+        .then((questionText) => {
+          expect(questionText).not.to.eq(lastQuestion); // ensures new question loaded
+          lastQuestion = questionText;
+        });
+
+      // Wait for answers to be clickable, then click one
+      cy.get("[data-testid=answer-option]")
+        .should("be.visible")
+        .first()
+        .click();
+
+      // explicitly wait for question text to disappear (indicating a transition)
+      cy.get("[data-testid=question-text]").should("not.have.text", lastQuestion);
+    }
+
+    // After answering all 10, verify the score appears
+    cy.get(".alert.alert-success")
+      .should("be.visible")
+      .and("contain.text", "Your score");
   });
 
-  it("displays final score when quiz is completed", () => {
-    mount(<Quiz />);
+  it("resets quiz after completion", () => {
     cy.contains("Start Quiz").click();
-    cy.wait("@getQuestions");
 
-    questions.forEach(() => {
-      cy.get("[data-testid=answer-option]").first().click();
-    });
-    cy.wait(1000); // Wait 1 second before checking
-    cy.contains("Your Score:").should("exist");
+    let lastQuestion = "";
+
+    for (let i = 0; i < 10; i++) {
+      cy.get("[data-testid=question-text]")
+        .should("be.visible")
+        .invoke("text")
+        .then((questionText) => {
+          expect(questionText).not.to.eq(lastQuestion);
+          lastQuestion = questionText;
+        });
+
+      cy.get("[data-testid=answer-option]")
+        .should("be.visible")
+        .first()
+        .click();
+
+      cy.get("[data-testid=question-text]").should("not.have.text", lastQuestion);
+    }
+
+    cy.get(".alert.alert-success")
+      .should("be.visible")
+      .and("contain.text", "Your score");
+
+    cy.contains("Start New Quiz").click();
+    cy.contains("Start Quiz").should("be.visible");
   });
 });
